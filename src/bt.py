@@ -3,20 +3,25 @@ import datetime
 import logging
 import json
 import pygatt
+from time import sleep
+
+with open(os.environ['BTMONITOR_CONFIG']) as f:
+   config = json.loads(f.read())
+
 
 # Custom JSONLineFormatter for JSON Lines format
 class JSONLineFormatter(logging.Formatter):
     def format(self, record):
         return json.dumps(record.msg)
 
-os.makedirs('logs', exist_ok=True)
+os.makedirs(config['log_dir'], exist_ok=True)
 
 # Create a logger specifically for Bluetooth devices
 device_logger = logging.getLogger('bluetooth_devices')
 device_logger.setLevel(logging.INFO)
 
 # Create a file handler for the device log
-device_file_handler = logging.FileHandler('devices.log')
+device_file_handler = logging.FileHandler(f'{config["log_dir"]}/devices.log')
 device_file_handler.setLevel(logging.INFO)
 device_file_handler.setFormatter(JSONLineFormatter())
 
@@ -42,7 +47,7 @@ general_logger.addHandler(console_handler)
 not_detected_limit = 3
 
 # Delay between each iteration
-sleeep_time = 5
+sleep_time = 5
 
 # Initialize the Bluetooth adapter
 adapter = pygatt.GATTToolBackend()
